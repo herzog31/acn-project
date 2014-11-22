@@ -17,7 +17,7 @@ class ftp_server:
 	def get_file(self):
 		size = 128 * 1024
 		file = "".join("%01x" % b for b in bytearray(size))
-		print "Server: File of length "+str(len(file))+" Bytes"
+		print "Server: File of length " + str(len(file)) + " Bytes"
 		self.connection.sendall(file)
 
 	def close_connection(self):
@@ -30,8 +30,8 @@ class ftp_server:
 		while True:
 			self.connection, self.client_addr = self.socket.accept()
 			print "Connect: Client", self.client_addr
-			print "Server: "+"220 Welcome to "+self.server_ip
-			self.connection.sendall("220 Welcome to "+self.server_ip)
+			print "Server: " + "220 Welcome to " + self.server_ip
+			self.connection.sendall("220 Welcome to " + self.server_ip)
 			while True:
 				buffer = self.connection.recv(1024)
 				if buffer[:3] == "get":

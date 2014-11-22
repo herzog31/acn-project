@@ -1,5 +1,5 @@
 import argparse
-from socket import *
+import socket
 import timeit
 
 class ftp_client:
@@ -9,7 +9,7 @@ class ftp_client:
 		self.server_port = server_port
 
 	def socket_init(self):
-		self.socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
+		self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
 
 	def socket_connect(self):
 		self.socket.connect((self.server_ip, self.server_port))
@@ -20,7 +20,7 @@ class ftp_client:
 		print "Disconnect: Server", (self.server_ip, self.server_port)
 
 	def request_file(self):
-		print "Client: "+"get bigdata.tar.xz"
+		print "Client: " + "get bigdata.tar.xz"
 		self.socket.sendall("get bigdata.tar.xz")
 		self.listen_for_file()
 
@@ -31,7 +31,7 @@ class ftp_client:
 			file += str(buffer)
 			if not buffer:
 				break
-		print "Server: File of length "+str(len(file))
+		print "Server: File of length " + str(len(file))
 
 	def listen_for_welcome(self):
 		while True:
@@ -57,7 +57,7 @@ def main():
 	end_time = timeit.default_timer()
 	execution_time = (end_time - start_time) * 1000 # in ms
 
-	print "Execution time was "+str(execution_time)+" ms"
+	print "Execution time was " + str(execution_time) + " ms"
 
 if __name__ == '__main__':
     main()
