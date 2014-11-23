@@ -1,14 +1,14 @@
 import argparse
-from socket import *
+import socket
 
-class ftp_server:
+class FTPServer:
 
 	def __init__(self, server_ip, server_port):
 		self.server_ip = server_ip
 		self.server_port = server_port
 
 	def socket_init(self):
-		self.socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
+		self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
 
 	def socket_bind(self):
 		self.socket.bind((self.server_ip, self.server_port))
@@ -47,7 +47,7 @@ def main():
 	parser.add_argument("--port", help="Port of the ftp server, e.g. 10021", type=int, default=10021)
 	args = parser.parse_args()
 
-	server = ftp_server(args.ip, args.port)
+	server = FTPServer(args.ip, args.port)
 	server.socket_init()
 	server.socket_bind()
 	server.start()

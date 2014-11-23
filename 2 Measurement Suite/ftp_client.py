@@ -2,7 +2,7 @@ import argparse
 import socket
 import timeit
 
-class ftp_client:
+class FTPClient:
 
 	def __init__(self, server_ip, server_port):
 		self.server_ip = server_ip
@@ -50,7 +50,7 @@ def main():
 
 	start_time = timeit.default_timer()
 
-	client = ftp_client(args.ip, args.port)
+	client = FTPClient(args.ip, args.port)
 	client.socket_init()
 	client.socket_connect()
 
