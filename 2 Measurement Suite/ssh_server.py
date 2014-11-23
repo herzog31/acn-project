@@ -20,6 +20,12 @@ class SSHServer:
 		self.connection.close()
 		self.connection = None
 		self.client_addr = None
+		self.command_count = 0
+
+	def ack_command(self, command):
+		self.connection.sendall("ACK " + command)
+		print "Server (" + str(self.command_count + 1) + "): ACK " + command
+		self.command_count += 1
 
 	def start(self):
 		while True:
@@ -27,12 +33,20 @@ class SSHServer:
 			print "Connect: Client", self.client_addr
 			print "Server: " + "SSH-0.0-Insecure"
 			self.connection.sendall("SSH-0.0-Insecure")
-			"""
+			
 			while True:
 				buffer = self.connection.recv(1024)
-				# Listen for 10 commands
-				break
-			"""
+
+				if not buffer:
+					break
+
+				if buffer == "logout":
+					print "Client: " + buffer
+					break
+
+				print "Client: " + buffer
+				self.ack_command(buffer)
+			
 			self.close_connection();
 
 def main():
