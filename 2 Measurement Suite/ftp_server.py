@@ -43,8 +43,8 @@ class FTPServer:
 
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--ip", help="IP address at which the ftp server is reachable, e.g. localhost", type=str, default="localhost")
-	parser.add_argument("--port", help="Port of the ftp server, e.g. 10021", type=int, default=10021)
+	parser.add_argument("--ip", help="IP address at which the ftp server is reachable. DEFAULT: localhost", type=str, default="localhost")
+	parser.add_argument("--port", help="Port of the ftp server. DEFAULT: 10021", type=int, default=10021)
 	args = parser.parse_args()
 
 	server = FTPServer(args.ip, args.port)

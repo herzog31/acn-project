@@ -57,8 +57,8 @@ class SSHClient:
 
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument("ip", help="IP address of the ssh server", type=str)
-	parser.add_argument("--port", help="Port of the ssh server, e.g. 10022", type=int, default=10022)
+	parser.add_argument("--ip", help="IP address of the ssh server. DEFAULT: localhost", type=str, default="localhost")
+	parser.add_argument("--port", help="Port of the ssh server. DEFAULT: 10022", type=int, default=10022)
 	args = parser.parse_args()
 
 	start_time = timeit.default_timer()

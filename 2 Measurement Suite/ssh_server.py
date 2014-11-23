@@ -51,8 +51,8 @@ class SSHServer:
 
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--ip", help="IP address at which the ssh server is reachable, e.g. localhost", type=str, default="localhost")
-	parser.add_argument("--port", help="Port of the ssh server, e.g. 10022", type=int, default=10022)
+	parser.add_argument("--ip", help="IP address at which the ssh server is reachable. DEFAULT: localhost", type=str, default="localhost")
+	parser.add_argument("--port", help="Port of the ssh server. DEFAULT: 10022", type=int, default=10022)
 	args = parser.parse_args()
 
 	server = SSHServer(args.ip, args.port)

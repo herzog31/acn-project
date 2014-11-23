@@ -44,8 +44,8 @@ class FTPClient:
 
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument("ip", help="IP address of the ftp server", type=str)
-	parser.add_argument("--port", help="Port of the ftp server, e.g. 10021", type=int, default=10021)
+	parser.add_argument("--ip", help="IP address of the ftp server. DEFAULT: localhost", type=str, default="localhost")
+	parser.add_argument("--port", help="Port of the ftp server. DEFAULT: 10021", type=int, default=10021)
 	args = parser.parse_args()
 
 	start_time = timeit.default_timer()
