@@ -1,5 +1,7 @@
 '''
 Created on 23.11.2014
+ACN Project
+HTTP Client
 
 @author: Group 19
 '''
@@ -58,21 +60,21 @@ class HttpClient(object):
         '''
 
         # GET-request for the root web page
-        self.socket.send("GET / HTTP/1.1\nHost:  fakeserver.org")
+        self.socket.sendall("GET / HTTP/1.1\nHost:  fakeserver.org")
         # Receiving the root web page
-        self.buffer1 = self.socket.recv(1024)
+        buffer1 = self.socket.recv(1024)
         print "Root web page received from server"
 
         # GET-request for the first image "funny_cat.png"
-        self.socket.send("GET /funny_cat.png HTTP/1.1\nHost:  fakeserver.org")
+        self.socket.sendall("GET /funny_cat.png HTTP/1.1\nHost:  fakeserver.org")
         # Receiving the first image
-        self.buffer2 = self.socket.recv(4096)
+        buffer2 = self.socket.recv(4096)
         print "funny_cat.png received from server"
 
         # GET-request for the second image "sad_cat.png"
-        self.socket.send("GET /sad_cat.png HTTP/1.1\nHost:  fakeserver.org")
+        self.socket.sendall("GET /sad_cat.png HTTP/1.1\nHost:  fakeserver.org")
         # Receiving the second image
-        self.buffer3 = self.socket.recv(8192)
+        buffer3 = self.socket.recv(8192)
         print "sad_cat.png received from server"
 
 
@@ -99,6 +101,7 @@ def main():
         type=int,
         default=10080)
     # Finally parse the passed arguments
+    # If "-h" or "--help" is passed, then the help message is printed
     args = parser.parse_args()
 
     # Create HTTP client (not part of the time measurement)

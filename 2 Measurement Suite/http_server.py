@@ -1,5 +1,7 @@
 '''
 Created on 21.11.2014
+ACN Project
+HTTP Server
 
 @author: Group 19
 '''
@@ -11,7 +13,7 @@ from socket import socket, AF_INET, SOCK_STREAM, IPPROTO_TCP
 class HttpServer(object):
 
     '''
-    This class represents a simple HTTP server which acts as if it would serve
+    This class implements a simple (static) HTTP server which acts as if it would serve
     one web page and two images
     '''
 
@@ -46,7 +48,7 @@ class HttpServer(object):
         '''
         # Closing the connection
         self.connection.close()
-        print "Client disconnected by server", self.client_ip
+        print "Client disconnected from server", self.client_ip
 
         # Setting the connection and the IP to None so they can be used for the
         # next connection
@@ -62,7 +64,7 @@ class HttpServer(object):
         data = bytearray(size)
         print "Sending back", str(len(data)), "byte of data to the client"
         # Send the data to the client
-        self.connection.send(data)
+        self.connection.sendall(data)
 
     def start(self):
         '''
@@ -79,20 +81,20 @@ class HttpServer(object):
             # As long as the client is not disconnected: serve content
             while True:
                 # Waiting for GET-requests from the client
-                self.input_buffer = self.connection.recv(1024)
+                input_buffer = self.connection.recv(1024)
 
                 # Split the lines of the GET-request into arrays (one item for
                 # every line)
-                self.request = self.input_buffer.splitlines()
+                request = input_buffer.splitlines()
 
                 # Check whether the request has to lines according to the task
-                if len(self.request) != 2:
+                if len(request) != 2:
                     # If an empty request is received, then the client does not
                     # ask for more content. The client can be disconnected If
                     # more or less then the two lines of a GET-request is
                     # received, disconnect the client as it violated the
                     # specification
-                    if self.input_buffer == "":
+                    if input_buffer == "":
                         print "No more data is received from the client"
                     else:
                         print "Client sent more or less then 2 lines of the GET-request!"
@@ -100,15 +102,15 @@ class HttpServer(object):
                     break
 
                 # Check whether the client wants the root web page delivered
-                if self.request[0] == "GET / HTTP/1.1" and self.request[1] == "Host:  fakeserver.org":
+                if request[0] == "GET / HTTP/1.1" and request[1] == "Host:  fakeserver.org":
                     print "Client requested empty-URL path"
                     self.send_data(1024)
                 # Check whether the client wants the first picture delivered
-                elif self.request[0] == "GET /funny_cat.png HTTP/1.1" and self.request[1] == "Host:  fakeserver.org":
+                elif request[0] == "GET /funny_cat.png HTTP/1.1" and request[1] == "Host:  fakeserver.org":
                     print "Client requested funny_cat.png"
                     self.send_data(4096)
                 # Check whether the client wants the second picture delivered
-                elif self.request[0] == "GET /sad_cat.png HTTP/1.1" and self.request[1] == "Host:  fakeserver.org":
+                elif request[0] == "GET /sad_cat.png HTTP/1.1" and request[1] == "Host:  fakeserver.org":
                     print "Client requested sad_cat.png"
                     self.send_data(8192)
                 # If none of the requests apply, then the client violated the
@@ -138,15 +140,17 @@ def main():
         help="IPv4-address at which the HTTP-server is reachable. DEFAULT: localhost",
         type=str,
         default="localhost")
-    # Add argument for setting the server_port. Set 10080 (http normally uses
+    # Add argument for setting the server_port. Set 10080 (HTTP normally uses
     # server_port 80) as default in case no server_port number is passed to
-    # the script
+    # the script. Port 10080 is normally used by "amanda" (this name may be
+    # shown in packet inspection applications like Wireshark).
     parser.add_argument(
         "--server_port",
         help="Port of the HTTP-server. DEFAULT: 10080",
         type=int,
         default=10080)
     # Finally parse the passed arguments
+    # If "-h" or "--help" is passed, then the help message is printed
     args = parser.parse_args()
 
     # Create http_server
@@ -155,7 +159,7 @@ def main():
     server.socket_init()
     # Bind the socket to the defined IP-address and server port-number
     server.socket_bind()
-    
+
     # Start the server - Accepting connections now
     print "Starting up HTTP server with IP", server.server_ip, \
         "on port", server.server_port
