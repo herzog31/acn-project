@@ -1,5 +1,5 @@
 """
-ACM Project
+ACN Project
 FTP Client
 
 @author: Group 19

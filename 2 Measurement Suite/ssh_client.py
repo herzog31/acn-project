@@ -1,5 +1,5 @@
 """
-ACM Project
+ACN Project
 SSH Client
 
 @author: Group 19
