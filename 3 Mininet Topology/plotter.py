@@ -12,7 +12,7 @@ from matplotlib import pyplot
 def create_boxplot_figure(ftp_measurement, http_measurement, ssh_measurement):
     '''
     Reads the input files (which may be None) and plots the results.
-    If None is passed nothing will be plotted for that protocol.
+    If None is passed, nothing will be plotted for that protocol.
     Returns a figure containing the box-plot.
     '''
     # List of value-lists for the three protocols
@@ -23,17 +23,20 @@ def create_boxplot_figure(ftp_measurement, http_measurement, ssh_measurement):
 
     # Check for all three lists
     # Append the list of results from one protocol to the list of value-lists
+
     if ftp_measurement is not None and ftp_measurement:
         values_to_plot.append(ftp_measurement)
         labels.append("FTP")
+
     if http_measurement is not None and http_measurement:
         values_to_plot.append(http_measurement)
         labels.append("HTTP")
+
     if ssh_measurement is not None and ssh_measurement:
         values_to_plot.append(ssh_measurement)
         labels.append("SSH")
 
-    # Create plot-figure
+    # Create one plot-figure
     fig = pyplot.figure(1, figsize=(9, 6))
 
     # Add values to the figure and create the box-plot
@@ -97,7 +100,8 @@ def main():
         " message exchange. If no file is specified, this protocol will be" +
         " ignored. The values are floating point values and have to be" +
         " separated by line-breaks.",
-        type=str)
+        type=str,
+        default=None)
 
     # Add argument for reading the measurement results of the HTTP message
     # exchange
@@ -136,10 +140,8 @@ def main():
     # Choice whether to show the plot
     parser.add_argument(
         "--show_plot",
-        help="If 'True' is passed as argument," +
-        " the plot will be shown on the screen.",
-        type=bool,
-        default=False)
+        help="Shows the plot on the screen.",
+        action="store_true")
 
     args = parser.parse_args()
 
