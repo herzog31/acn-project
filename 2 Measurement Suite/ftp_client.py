@@ -20,12 +20,13 @@ class FTPClient:
           the FTP server's welcome message.
     """
 
-    def __init__(self, server_ip, server_port):
+    def __init__(self, server_ip, server_port, debug):
         """
         Create client with server ip & port
         """
         self.server_ip = server_ip
         self.server_port = server_port
+        self.debug = debug
 
     def socket_init(self):
         """
@@ -48,13 +49,15 @@ class FTPClient:
         Disconnect from the server
         """
         self.socket.close()
-        print "Disconnect: Server", (self.server_ip, self.server_port)
+        if self.debug:
+            print "Disconnect: Server", (self.server_ip, self.server_port)
 
     def request_file(self):
         """
         Send a FTP request to the server to request the file bigdata.tar.xz
         """
-        print "Client: " + "get bigdata.tar.xz"
+        if self.debug:
+            print "Client: " + "get bigdata.tar.xz"
         self.socket.sendall("get bigdata.tar.xz")
         self.listen_for_file()
 
@@ -69,7 +72,8 @@ class FTPClient:
             file += str(buffer)
             if not buffer:
                 break
-        print "Server: File of length " + str(len(file))
+        if self.debug:
+            print "Server: File of length " + str(len(file))
 
     def listen_for_welcome(self):
         """
@@ -78,7 +82,8 @@ class FTPClient:
         while True:
             buffer = self.socket.recv(1024)
             if buffer[:3] == "220":
-                print "Server: " + buffer
+                if self.debug:
+                    print "Server: " + buffer
                 self.request_file()
             break
         self.socket_disconnect()
@@ -100,13 +105,18 @@ def main():
         help="Port of the ftp server. DEFAULT: 10021",
         type=int,
         default=10021)
+    parser.add_argument(
+        "--debug",
+        help="Print out additional debug information",
+        action="store_true")
+    parser.set_defaults(debug=False)
     args = parser.parse_args()
 
     # Start execution time measurement 
     start_time = timeit.default_timer()
 
     # Initialize FTP client and execute protocol
-    client = FTPClient(args.ip, args.port)
+    client = FTPClient(args.ip, args.port, args.debug)
     client.socket_init()
     client.socket_connect()
 
@@ -114,7 +124,10 @@ def main():
     end_time = timeit.default_timer()
     execution_time = (end_time - start_time) * 1000  # in ms
 
-    print "Execution time was " + str(execution_time) + " ms"
+    if args.debug:
+        print "Execution time was " + str(execution_time) + " ms"
+    else:
+        print str(execution_time)
 
 if __name__ == '__main__':
     main()

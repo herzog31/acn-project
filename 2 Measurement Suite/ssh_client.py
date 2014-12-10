@@ -21,7 +21,7 @@ class SSHClient:
               for the SSH server's welcome message
     """
 
-    def __init__(self, server_ip, server_port, commands):
+    def __init__(self, server_ip, server_port, commands, debug):
         """
         Create client with server ip, port and array with commands
         """
@@ -29,7 +29,9 @@ class SSHClient:
         self.server_port = server_port
         self.command_index = 0
         self.commands = commands
-        print(self.commands)
+        self.debug = debug
+        if self.debug:
+            print(self.commands)
 
     def socket_init(self):
         """
@@ -52,21 +54,24 @@ class SSHClient:
         Disconnect from the server
         """
         self.socket.close()
-        print "Disconnect: Server", (self.server_ip, self.server_port)
+        if self.debug:
+            print "Disconnect: Server", (self.server_ip, self.server_port)
 
     def logout(self):
         """
         Send the logout command to the SSH server
         """
         self.socket.sendall("logout")
-        print "Client: logout"
+        if self.debug:
+            print "Client: logout"
 
     def listen_for_welcome(self):
         """
         Listen for the SSH server's welcome message
         """
         buffer = self.socket.recv(1024)
-        print "Server: " + buffer
+        if self.debug:
+            print "Server: " + buffer
         self.send_commands()
 
     def send_commands(self):
@@ -87,8 +92,9 @@ class SSHClient:
         """
         Send individual command at the index self.command_index to the server
         """
-        print "Client (" + str(self.command_index + 1) + "): " +\
-            self.commands[self.command_index % len(self.commands)]
+        if self.debug:
+            print "Client (" + str(self.command_index + 1) + "): " +\
+                self.commands[self.command_index % len(self.commands)]
         self.socket.sendall(
             self.commands[
                 self.command_index % len(
@@ -103,7 +109,8 @@ class SSHClient:
             buffer = self.socket.recv(1024)
             if buffer == "ACKNOWLEDGE " + \
                     self.commands[self.command_index % len(self.commands)]:
-                print "Server: " + buffer
+                if self.debug:
+                    print "Server: " + buffer
                 return True
             return False
 
@@ -123,6 +130,11 @@ def main():
         help="Port of the ssh server. DEFAULT: 10022",
         type=int,
         default=10022)
+    parser.add_argument(
+        "--debug",
+        help="Print out additional debug information",
+        action="store_true")
+    parser.set_defaults(debug=False)
     args = parser.parse_args()
 
     # Start execution time measurement
@@ -142,7 +154,7 @@ def main():
         "testJ"]
 
     # Initialize SSH client and execute protocol
-    client = SSHClient(args.ip, args.port, commands)
+    client = SSHClient(args.ip, args.port, commands, args.debug)
     client.socket_init()
     client.socket_connect()
 
@@ -150,7 +162,10 @@ def main():
     end_time = timeit.default_timer()
     execution_time = (end_time - start_time) * 1000  # in ms
 
-    print "Execution time was " + str(execution_time) + " ms"
+    if args.debug:
+        print "Execution time was " + str(execution_time) + " ms"
+    else:
+        print str(execution_time)
 
 if __name__ == '__main__':
     main()

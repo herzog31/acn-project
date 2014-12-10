@@ -18,7 +18,7 @@ class HttpClient(object):
     and two images from a simple HTTP server.
     '''
 
-    def __init__(self, server_ip, server_port):
+    def __init__(self, server_ip, server_port, debug):
         '''
         Constructor for storing the IPv4-address of the server and the port
         number
@@ -26,6 +26,7 @@ class HttpClient(object):
         # Store the IPv4-address and the port number
         self.server_ip = server_ip
         self.server_port = server_port
+        self.debug = debug
 
     def socket_init(self):
         '''
@@ -43,8 +44,9 @@ class HttpClient(object):
         # Connect to the server using the IPv4-address and the port number
         self.socket.connect((self.server_ip, self.server_port))
 
-        print "Client connected to server", self.server_ip, \
-            "on port", self.server_port
+        if self.debug:
+            print "Client connected to server", self.server_ip, \
+                "on port", self.server_port
 
     def socket_disconnect(self):
         '''
@@ -52,7 +54,8 @@ class HttpClient(object):
         '''
         # Close the connection and hence the socket
         self.socket.close()
-        print "Client disconnected from server", self.server_ip
+        if self.debug:
+            print "Client disconnected from server", self.server_ip
 
     def fetch_web_page(self):
         '''
@@ -63,19 +66,22 @@ class HttpClient(object):
         self.socket.sendall("GET / HTTP/1.1\nHost:  fakeserver.org")
         # Receiving the root web page
         buffer1 = self.socket.recv(1024)
-        print "Root web page received from server"
+        if self.debug:
+            print "Root web page received from server"
 
         # GET-request for the first image "funny_cat.png"
         self.socket.sendall("GET /funny_cat.png HTTP/1.1\nHost:  fakeserver.org")
         # Receiving the first image
         buffer2 = self.socket.recv(4096)
-        print "funny_cat.png received from server"
+        if self.debug:
+            print "funny_cat.png received from server"
 
         # GET-request for the second image "sad_cat.png"
         self.socket.sendall("GET /sad_cat.png HTTP/1.1\nHost:  fakeserver.org")
         # Receiving the second image
         buffer3 = self.socket.recv(8192)
-        print "sad_cat.png received from server"
+        if self.debug:
+            print "sad_cat.png received from server"
 
 
 def main():
@@ -100,12 +106,17 @@ def main():
         help="Port of the HTTP-server to which the client should connect. DEFAULT 10080",
         type=int,
         default=10080)
+    parser.add_argument(
+        "--debug",
+        help="Print out additional debug information",
+        action="store_true")
+    parser.set_defaults(debug=False)
     # Finally parse the passed arguments
     # If "-h" or "--help" is passed, then the help message is printed
     args = parser.parse_args()
 
     # Create HTTP client (not part of the time measurement)
-    client = HttpClient(args.server_ip, args.server_port)
+    client = HttpClient(args.server_ip, args.server_port, args.debug)
 
     # Start measurement
     start_time = timeit.default_timer()
@@ -124,9 +135,11 @@ def main():
 
     # Calculate and show execution time in ms
     execution_time = (end_time - start_time) * 1000
-    print "Execution time was", str(execution_time), "ms"
-
-    print "Client terminated"
+    if args.debug:
+        print "Execution time was", str(execution_time), "ms"
+        print "Client terminated"
+    else:
+        print str(execution_time)
 
 if __name__ == '__main__':
     main()
