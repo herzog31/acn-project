@@ -16,14 +16,18 @@ import argparse
 
 
 class MininetTopology(Topo):
+	"""
+	This class implements the mininet topology.
+	"""
+
 	def __init__(self, **opts):
 		Topo.__init__(self, **opts)
 
-		# Hosts
+		# Add the hosts with ip addresses
 		hostA = self.addHost('hA', ip='10.0.0.1/24')
 		hostB = self.addHost('hB', ip='10.0.0.2/24')
 
-		# Switches
+		# Add the switches
 		s1 = self.addSwitch('s1')
 		s2 = self.addSwitch('s2')
 		s3 = self.addSwitch('s3')
@@ -52,22 +56,37 @@ class MininetTopology(Topo):
 		self.addLink(s1, s3, bw=1/32, delay='1ms')
 
 def write_to_file(values, filename):
-    file = open(filename, 'w')
+	"""
+	This method writes a list of values to a file at filename.
+	"""
 
-    if values is None or not values:
-        file.write("")
-    else:
-        for value in values:
-            file.write("{0}\n".format(value))
+	# Open the file at the given location
+	file = open(filename, 'w')
 
-    file.close()
-    print len(values), "results were saved to", filename
+	# Create an empty file if values is empty
+	if values is None or not values:
+		file.write("")
+	else:
+		# otherwise write one line per list item
+		for value in values:
+			file.write("{0}\n".format(value))
+
+	# Close the file
+	file.close()
+	print len(values), "results were saved to", filename
 
 def run():
+	"""
+	Use argparse to specify different values to execute measurements.
+
+	Example: python topology.py --protocol FTP --iterations 10 
+		--file ftp_results.txt
+	"""
 	parser = argparse.ArgumentParser()
 	parser.add_argument(
 		"--protocol",
-		help="Execute measurements for given protocol. Can be FTP, HTTP or SSH.",
+		help="Execute measurements for given protocol. Can be FTP, \
+			HTTP or SSH.",
 		type=str)
 	parser.add_argument(
 		"--iterations",
@@ -76,14 +95,17 @@ def run():
 		default=1)
 	parser.add_argument(
 		"--file",
-		help="Filename where the results should be saved. Eg. ftp_results.txt",
+		help="Filename where the results should be saved. Eg. \
+			ftp_results.txt",
 		type=str)
 	args = parser.parse_args()
 
+	# Create mininet topology
 	topo = MininetTopology()
 	net = Mininet(topo=topo, link=TCLink, switch=OVSSwitch)
 	net.start()
 
+	# Configure OVS switches to disable flooding at several ports
 	print "Configure OVS switches"
 	s1, s2, s3, s4 = net.get('s1', 's2', 's3', 's4')
 	# Disable Flood at s1:2 port connected to S2
@@ -95,11 +117,12 @@ def run():
 	# Disable Floot at s4:2 port connected to S3
 	s4.dpctl("mod-port", 2, "no-flood")
 
-	# print "Dumping host connestions"
-	# dumpNodeConnections(net.hosts)
+	# Print all hosts with their ip and mac addresses
 	for host in net.hosts:
-		print "Host", host.name, "has IP address", host.IP(), "and MAC address", host.MAC()
+		print "Host", host.name, "has IP address", host.IP(), \
+			"and MAC address", host.MAC()
 
+	# Execute pingAll() command to check connectivity
 	print "Testing network connectivity"
 	net.pingAll()
 
@@ -107,6 +130,7 @@ def run():
 	hostA, hostB = net.get('hA', 'hB')
 	# net.iperf((hostA, hostB))
 
+	# Execute FTP measurements
 	if(args.protocol and args.protocol == "FTP"):
 		print "Testing FTP protocol"
 		# Start FTP server on hostB in the background and get PID
@@ -124,6 +148,7 @@ def run():
 		# Kill FTP server
 		hostB.cmd('kill', pid)
 
+	# Execute HTTP measurements
 	if(args.protocol and args.protocol == "HTTP"):
 		print "Testing HTTP protocol"
 		# Start HTTP server on hostB in the background and get PID
@@ -133,7 +158,8 @@ def run():
 		for i in xrange(args.iterations):
 			print "Iteration {}/{}".format(i+1, args.iterations)
 			# Start HTTP client on hostA
-			time_result = hostA.cmd('python http_client.py --server_ip 10.0.0.2')
+			time_result = hostA.cmd('python http_client.py \
+				--server_ip 10.0.0.2')
 			http_values.append(float(time_result))
 		if(args.file):
 			write_to_file(http_values, args.file)
@@ -141,6 +167,7 @@ def run():
 		# Kill HTTP server
 		hostB.cmd('kill', pid)
 
+	# Execute SSH measurements
 	if(args.protocol and args.protocol == "SSH"):
 		print "Testing SSH protocol"
 		# Start SSH server on hostB in the background and get PID
