@@ -36,25 +36,25 @@ class MininetTopology(Topo):
 
         # Host Links
         # Connect hA:1 to s1:1
-        self.addLink(hostA, s1, bw=1, delay='1ms')
+        self.addLink(hostA, s1, bw=1, delay='1ms', loss=0)
         # Connect s3:1 to hB:1
-        self.addLink(s3, hostB, bw=1, delay='1ms')
+        self.addLink(s3, hostB, bw=1, delay='1ms', loss=0)
 
         # High BW Link
         # Connect s1:2 to s2:1
-        self.addLink(s1, s2, bw=1.0 / 2, delay='20ms')
+        self.addLink(s1, s2, bw=1.0 / 2, delay='20ms', loss=0)
         # Connect s2:2 to s3:2
-        self.addLink(s2, s3, bw=1.0 / 2, delay='20ms')
+        self.addLink(s2, s3, bw=1.0 / 2, delay='20ms', loss=0)
 
         # Mid BW Link
         # Connect s1:3 to s4:1
-        self.addLink(s1, s4, bw=1.0 / 8, delay='10ms')
+        self.addLink(s1, s4, bw=1.0 / 8, delay='10ms', loss=0)
         # Connect s4:2 to s3:3
-        self.addLink(s4, s3, bw=1.0 / 8, delay='10ms')
+        self.addLink(s4, s3, bw=1.0 / 8, delay='10ms', loss=0)
 
         # Low BW Link
         # Connect s1:4 to s3:4
-        self.addLink(s1, s3, bw=1 / 32, delay='1ms')
+        self.addLink(s1, s3, bw=1.0 / 32, delay='1ms', loss=0)
 
 
 def write_to_file(values, filename):

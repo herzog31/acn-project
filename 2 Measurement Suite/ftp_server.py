@@ -79,9 +79,8 @@ class FTPServer:
 				if buffer[:3] == "get":
 					print "Client: " + buffer
 					self.get_file()
-					self.close_connection()
 					break
-				break
+			self.close_connection()
 
 
 def main():
