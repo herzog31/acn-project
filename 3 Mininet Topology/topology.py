@@ -120,6 +120,12 @@ def run():
     # Disable Floot at s4:2 port connected to S3
     s4.dpctl("mod-port", 2, "no-flood")
 
+    # Clear flow tables
+    s1.dpctl("del-flows")
+    s2.dpctl("del-flows")
+    s3.dpctl("del-flows")
+    s4.dpctl("del-flows")
+
     # Print all hosts with their ip and mac addresses
     for host in net.hosts:
         print "Host", host.name, "has IP address", host.IP(), \
