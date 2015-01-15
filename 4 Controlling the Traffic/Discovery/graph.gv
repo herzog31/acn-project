@@ -1,120 +1,33 @@
 graph Network {
 	subgraph cluster_s1 {
 		label="00-00-00-00-00-01";
-		port1_1[label="port: 1\naa:04:6c:08:b4:d8", shape=box];
-		port1_2[label="port: 2\n7a:c0:09:25:cb:f8", shape=box];
-		port1_65534[label="port: 65534\nc6:8e:f8:96:3c:4d", shape=box];
+		port1_2[label="port: 2\naa:df:b0:26:73:ed", shape=box];
+		port1_3[label="port: 3\nca:02:a3:a7:08:34", shape=box];
+		port1_4[label="port: 4\n82:fc:35:e0:f7:75", shape=box];
+		port1_65534[label="port: 65534\n1a:4a:61:8f:2e:46", shape=box];
 	}
 	subgraph cluster_s2 {
 		label="00-00-00-00-00-02";
-		port2_1[label="port: 1\nda:16:ad:19:ea:c6", shape=box];
-		port2_2[label="port: 2\n42:80:e1:e1:a4:f8", shape=box];
-		port2_3[label="port: 3\n06:48:0f:22:79:a4", shape=box];
-		port2_65534[label="port: 65534\n6a:c0:64:3f:9a:47", shape=box];
+		port2_1[label="port: 1\n92:2a:c6:54:28:73", shape=box];
+		port2_2[label="port: 2\n16:16:d0:96:d3:b8", shape=box];
+		port2_65534[label="port: 65534\n76:55:5d:84:0d:41", shape=box];
 	}
 	subgraph cluster_s3 {
 		label="00-00-00-00-00-03";
-		port3_1[label="port: 1\n96:bc:18:c3:51:03", shape=box];
-		port3_2[label="port: 2\n92:5a:f6:76:25:50", shape=box];
-		port3_3[label="port: 3\n12:dd:fd:12:00:ef", shape=box];
-		port3_65534[label="port: 65534\nee:95:82:12:07:44", shape=box];
+		port3_2[label="port: 2\n4e:fe:7f:73:b1:84", shape=box];
+		port3_3[label="port: 3\n16:59:2c:43:a8:c7", shape=box];
+		port3_4[label="port: 4\n92:0d:da:ee:25:91", shape=box];
+		port3_65534[label="port: 65534\ne2:ab:bc:ab:a7:4f", shape=box];
 	}
 	subgraph cluster_s4 {
 		label="00-00-00-00-00-04";
-		port4_1[label="port: 1\nf2:bf:c0:06:38:32", shape=box];
-		port4_2[label="port: 2\n0e:91:71:8d:82:cf", shape=box];
-		port4_3[label="port: 3\nf2:95:85:c7:d5:8d", shape=box];
-		port4_65534[label="port: 65534\nfe:f0:16:79:78:40", shape=box];
+		port4_1[label="port: 1\nbe:b9:0f:71:de:d9", shape=box];
+		port4_2[label="port: 2\nd6:d1:5e:d0:e7:ad", shape=box];
+		port4_65534[label="port: 65534\n1a:54:a0:d7:4f:47", shape=box];
 	}
-	subgraph cluster_s5 {
-		label="00-00-00-00-00-05";
-		port5_1[label="port: 1\n32:93:d8:45:05:92", shape=box];
-		port5_2[label="port: 2\nfa:83:5b:fe:5f:48", shape=box];
-		port5_3[label="port: 3\n0a:d7:4b:89:2f:2b", shape=box];
-		port5_65534[label="port: 65534\nf6:32:3a:47:2c:4d", shape=box];
-	}
-	subgraph cluster_s6 {
-		label="00-00-00-00-00-06";
-		port6_1[label="port: 1\nf2:b1:ca:b3:25:0f", shape=box];
-		port6_2[label="port: 2\n06:88:0a:80:45:85", shape=box];
-		port6_3[label="port: 3\n7e:78:05:f7:bf:73", shape=box];
-		port6_65534[label="port: 65534\n62:1f:e2:8a:21:41", shape=box];
-	}
-	subgraph cluster_s7 {
-		label="00-00-00-00-00-07";
-		port7_1[label="port: 1\n4e:33:ee:f9:d7:69", shape=box];
-		port7_2[label="port: 2\n4a:b2:32:73:49:49", shape=box];
-		port7_3[label="port: 3\n0a:98:aa:14:09:71", shape=box];
-		port7_65534[label="port: 65534\nd6:90:00:94:eb:4a", shape=box];
-	}
-	subgraph cluster_s8 {
-		label="00-00-00-00-00-08";
-		port8_1[label="port: 1\n22:1c:62:e3:49:36", shape=box];
-		port8_2[label="port: 2\n7a:a8:08:07:fc:46", shape=box];
-		port8_3[label="port: 3\n8a:c7:81:17:b0:04", shape=box];
-		port8_65534[label="port: 65534\nbe:6d:52:fc:98:47", shape=box];
-	}
-	subgraph cluster_s9 {
-		label="00-00-00-00-00-09";
-		port9_1[label="port: 1\n7a:00:1b:42:5b:ad", shape=box];
-		port9_2[label="port: 2\nfe:5a:15:17:d7:03", shape=box];
-		port9_3[label="port: 3\nee:d6:69:9f:50:18", shape=box];
-		port9_65534[label="port: 65534\nd6:15:12:08:8f:47", shape=box];
-	}
-	subgraph cluster_s10 {
-		label="00-00-00-00-00-0a";
-		port10_1[label="port: 1\nb6:e9:95:bb:ae:7f", shape=box];
-		port10_2[label="port: 2\nc6:82:80:eb:8a:a2", shape=box];
-		port10_3[label="port: 3\n1a:aa:33:f0:00:8c", shape=box];
-		port10_65534[label="port: 65534\na6:b6:80:f6:76:42", shape=box];
-	}
-	subgraph cluster_s11 {
-		label="00-00-00-00-00-0b";
-		port11_1[label="port: 1\nfe:d4:e4:8d:78:85", shape=box];
-		port11_2[label="port: 2\nca:fe:49:c4:96:b9", shape=box];
-		port11_3[label="port: 3\n1e:24:54:c1:0c:91", shape=box];
-		port11_65534[label="port: 65534\n42:6a:71:aa:56:4e", shape=box];
-	}
-	subgraph cluster_s12 {
-		label="00-00-00-00-00-0c";
-		port12_1[label="port: 1\nfa:f9:66:c7:15:71", shape=box];
-		port12_2[label="port: 2\nee:d9:30:63:51:b3", shape=box];
-		port12_3[label="port: 3\ne2:aa:85:26:89:d2", shape=box];
-		port12_65534[label="port: 65534\n1e:cb:40:cd:19:48", shape=box];
-	}
-	subgraph cluster_s13 {
-		label="00-00-00-00-00-0d";
-		port13_1[label="port: 1\n56:f7:de:4c:4c:5b", shape=box];
-		port13_2[label="port: 2\n52:f9:19:55:be:31", shape=box];
-		port13_3[label="port: 3\n2e:25:a1:09:2d:a5", shape=box];
-		port13_65534[label="port: 65534\n52:8c:c7:4a:bc:41", shape=box];
-	}
-	subgraph cluster_s14 {
-		label="00-00-00-00-00-0e";
-		port14_1[label="port: 1\n0e:99:c6:af:a0:03", shape=box];
-		port14_2[label="port: 2\nc6:3a:6b:e1:35:e7", shape=box];
-		port14_3[label="port: 3\n5e:fe:d6:06:bb:a7", shape=box];
-		port14_65534[label="port: 65534\n76:ee:ff:37:b0:43", shape=box];
-	}
-	subgraph cluster_s15 {
-		label="00-00-00-00-00-0f";
-		port15_1[label="port: 1\n22:8c:ec:a9:04:46", shape=box];
-		port15_2[label="port: 2\n6e:99:e5:e7:95:9f", shape=box];
-		port15_3[label="port: 3\n5a:7f:73:39:d0:62", shape=box];
-		port15_65534[label="port: 65534\n6e:b9:75:07:a1:49", shape=box];
-	}
-	port1_1 -- port2_3
-	port1_2 -- port9_3
-	port2_1 -- port3_3
-	port2_2 -- port6_3
-	port3_1 -- port4_3
-	port3_2 -- port5_3
-	port6_1 -- port7_3
-	port6_2 -- port8_3
-	port9_1 -- port10_3
-	port9_2 -- port13_3
-	port10_1 -- port11_3
-	port10_2 -- port12_3
-	port13_1 -- port14_3
-	port13_2 -- port15_3
+	port1_3 -- port4_1
+	port1_4 -- port3_4
+	port1_2 -- port2_1
+	port2_2 -- port3_2
+	port3_3 -- port4_2
 }
