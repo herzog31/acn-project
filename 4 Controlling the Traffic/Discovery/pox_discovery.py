@@ -25,24 +25,35 @@ class NetworkTopology:
 		content = "graph Network {\n"
 		for s in self.listSwitches:
 			switch = self.listSwitches[s]
-			pprint(vars(switch))
-			content += "\tsubgraph " + dpidToStr(switch.dpid) + "{\n"
+			content += "\tsubgraph cluster_s" + str(switch.dpid) +" {\n\t\tlabel=\"" + dpidToStr(switch.dpid) + "\";\n"
+			for p in switch.ports:
+				content += "\t\tport" + str(switch.dpid) + "_" + str(p) + "[label=\"port: "+ str(p) +"\\n"+str(switch.ports[p].hwAddr)+"\", shape=box];\n"
 			content += "\t}\n"
+		for link in self.linkList:
+			content += "\tport" + str(link.dpid1) + "_" + str(link.port1) + " -- port" + str(link.dpid2) + "_" + str(link.port2) + "\n"
 		content += "}"
 
-		print content
+		return content
+
+	def saveToFile(self, fileContent, fileName):
+		file = open(fileName, 'w')
+		file.write(fileContent)
+		file.close()
 
 	def printTopology(self):
-		self.createDOTfile()
-		""" for s in self.listSwitches:
+		fileName = "graph.gv"
+		dotFile = self.createDOTfile()
+		self.saveToFile(dotFile, fileName)
+
+		for s in self.listSwitches:
 			switch = self.listSwitches[s]
-			print "SwitchID", switch.dpid
-			print "Ports"
+			print "Switch ", dpidToStr(switch.dpid)
+			print "\t Ports"
 			for p in switch.ports:
-				print "Name", switch.ports[p].name, "No", switch.ports[p].number, "MAC", switch.ports[p].hwAddr, "Entites", switch.ports[p].entities
+				print "\t\tName", switch.ports[p].name, "No", switch.ports[p].number, "MAC", switch.ports[p].hwAddr, "Entites", switch.ports[p].entities
 		print "Links"
 		for link in self.linkList:
-			print link """
+			print "\t", link
 
 	def _handle_removeSwitch(self, event):
 		print "Incoming SwitchLeave Event"
@@ -63,20 +74,26 @@ class NetworkTopology:
 	def _handle_linkEvent(self, event):
 		print "Incoming LinkEvent"
 		if event.added:
-			self.linkList.append(event.link)
+			self.addLink(event.link)
 		elif event.removed:
 			self.removeLink(event.link)
 		
 		self.printTopology()
 
 	def removeLink(self, linkRemove):
-		print linkRemove.dpid1,linkRemove.port1, linkRemove.dpid2,linkRemove.port2
-
 		for link in self.linkList:
 			if  ((link.dpid1 == linkRemove.dpid1 and link.dpid2 == linkRemove.dpid2 and link.port1 == linkRemove.port1 and link.port2 == linkRemove.port2)
 				or
 				(link.dpid2 == linkRemove.dpid1 and link.dpid1 == linkRemove.dpid2 and link.port2 == linkRemove.port1 and link.port1 == linkRemove.port2)):
 				self.linkList.remove(link)
+
+	def addLink(self, linkAdd):
+		for link in self.linkList:
+			if  ((link.dpid1 == linkAdd.dpid1 and link.dpid2 == linkAdd.dpid2 and link.port1 == linkAdd.port1 and link.port2 == linkAdd.port2)
+				or
+				(link.dpid2 == linkAdd.dpid1 and link.dpid1 == linkAdd.dpid2 and link.port2 == linkAdd.port1 and link.port1 == linkAdd.port2)):
+				return
+		self.linkList.append(linkAdd)		
 
 	def removeSwitch(self, switchRemove):
 		if self.listSwitches.has_key(switchRemove):
