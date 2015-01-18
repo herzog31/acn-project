@@ -1,0 +1,1 @@
+This subfolder contains our solution for the SDN controller for the network that is defined in the project. For using the remote controller, the mininet topology script was updated. The subfolder Plotter contains the measurement results for all nine possibilities.
