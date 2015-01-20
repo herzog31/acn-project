@@ -9,6 +9,9 @@ POX Network Controller
 from pox.core import core
 from pox.lib.util import dpidToStr
 import pox.openflow.libopenflow_01 as of
+from pox.lib.packet.ipv4 import ipv4
+from pox.lib.packet.ethernet import ethernet
+
 
 # Get the Logger for POX
 log = core.getLogger()
@@ -22,10 +25,19 @@ class PacketSwitching:
     Switches packets over one of the three paths.
     '''
 
-    def __init__(self, bandwidth):
+    ftp_port = 10021
+    ssh_port = 10022
+    http_port = 10080
+    hostA_ip = "10.0.0.1"
+    hostB_ip = "10.0.0.2"
+    other_bw = "low"
+
+    def __init__(self, ftp_bw, ssh_bw, http_bw):
         '''
         '''
-        self.bandwidth = bandwidth
+        self.ftp_bw = ftp_bw
+        self.ssh_bw = ssh_bw
+        self.http_bw = http_bw
 
     def _handle_PacketIn(self, event):
         '''
@@ -35,29 +47,46 @@ class PacketSwitching:
         in_port = event.port
         packet = event.parsed
         con = event.connection
-        log.debug("Switch %s received a packet on %s" %
-                  (dpidToStr(dpid), str(in_port)))
+        out_port = self.__get_out_port(self.other_bw, dpid, in_port)
 
-        log.debug("DUMP: %s" % packet.dump())
+        if packet.type == ethernet.IP_TYPE:
+            tcpp = event.parsed.find('tcp')
+            if not tcpp is None:
+                
+                ftp_out_port = self.__get_out_port(self.ftp_bw, dpid, in_port)
+                ssh_out_port = self.__get_out_port(self.ssh_bw, dpid, in_port)
+                http_out_port = self.__get_out_port(self.http_bw, dpid, in_port)
+                print "Out Ports: FTP %s, SSH %s, HTTP %s, Rest %s" % (str(ftp_out_port), str(ssh_out_port), str(http_out_port), str(out_port))
 
-        # Get outgoing port for current switch according to the selected
-        # path/bandwidth
-        out_port = self.__get_out_port(dpid, in_port)
+                if packet.payload.srcip == self.hostA_ip and tcpp.dstport == self.ssh_port and not ssh_out_port is None:
+                    print "SSH Packet from A -> B"
+                    self.install_forwarding_rule(con, packet.payload.srcip, None, None, tcpp.dstport, ssh_out_port)
 
-        log.debug("out_port: %s" % (str(out_port)))
+                if packet.payload.srcip == self.hostB_ip and tcpp.srcport == self.ssh_port and not ssh_out_port is None:
+                    print "SSH Packet from B -> A"
+                    self.install_forwarding_rule(con, packet.payload.srcip, None, tcpp.srcport, None, ssh_out_port)
+
+                if packet.payload.srcip == self.hostA_ip and tcpp.dstport == self.ftp_port and not ftp_out_port is None:
+                    print "FTP Packet from A -> B"
+                    self.install_forwarding_rule(con, packet.payload.srcip, None, None, tcpp.dstport, ftp_out_port)
+
+                if packet.payload.srcip == self.hostB_ip and tcpp.srcport == self.ftp_port and not ftp_out_port is None:
+                    print "FTP Packet from B -> A"
+                    self.install_forwarding_rule(con, packet.payload.srcip, None, tcpp.srcport, None, ftp_out_port)
+
+                if packet.payload.srcip == self.hostA_ip and tcpp.dstport == self.http_port and not http_out_port is None:
+                    print "HTTP Packet from A -> B"
+                    self.install_forwarding_rule(con, packet.payload.srcip, None, None, tcpp.dstport, http_out_port)
+
+                if packet.payload.srcip == self.hostB_ip and tcpp.srcport == self.http_port and not http_out_port is None:
+                    print "HTTP Packet from B -> A"
+                    self.install_forwarding_rule(con, packet.payload.srcip, None, tcpp.srcport, None, http_out_port)
+
+                print "IP Source: %s, IP Dest: %s, TCP Source: %s, TCP Destination: %s" % (str(packet.payload.srcip), str(packet.payload.dstip), str(tcpp.srcport), str(tcpp.dstport))
 
         if out_port < 0:
-            log.error("Unable to detect" +
-                      " out_port for switch %s!" % (dpidToStr(dpid)))
+            #log.error("Unable to detect out_port for switch %s with in_port %s!" % (dpidToStr(dpid), str(in_port)))
             return
-
-        # Install forwarding rule if the packet is an IPv4-Packet
-        if packet.type == 0x0800:
-            log.debug("Installing forwarding rule...")
-            src_ip = packet.payload.srcip
-            dst_ip = packet.payload.dstip
-            self.install_forwarding_rule(
-                con, src_ip, dst_ip, out_port)
 
         # Sending packet to the outgoing port
         log.debug("Sending packet to out_port")
@@ -66,7 +95,7 @@ class PacketSwitching:
         msg.actions.append(of.ofp_action_output(port=out_port))
         con.send(msg)
 
-    def install_forwarding_rule(self, con, nw_src, nw_dst, out_port):
+    def install_forwarding_rule(self, con, nw_src, nw_dst, tp_src, tp_dst, out_port):
         '''
         This function installs a forwarding rule for
         the switch according to the path that is currently set.
@@ -80,6 +109,10 @@ class PacketSwitching:
         log.debug("dl_type = 0x0800")
         msg.match.dl_type = 0x0800
 
+        # Set protocol to TCP
+        log.debug("nw_proto = 6")
+        msg.match.nw_proto = 6
+
         # Set Source-IP
         log.debug("nw_src = %s" % nw_src)
         msg.match.nw_src = nw_src
@@ -88,14 +121,22 @@ class PacketSwitching:
         log.debug("nw_dst = %s" % nw_dst)
         msg.match.nw_dst = nw_dst
 
+        # Set TCP Source Port
+        log.debug("tp_src = %s" % tp_src)
+        msg.match.tp_src = tp_src
+
+        # Set TCP Destination Port
+        log.debug("tp_dst = %s" % tp_dst)
+        msg.match.tp_dst = tp_dst
+
         # Set outgoing port(s)
         log.debug("out_port = %s" % out_port)
-        msg.actions = [of.ofp_action_output(port=out_port)]
+        msg.actions.append(of.ofp_action_output(port=out_port))
 
         # Send message to switch
         con.send(msg)
 
-    def __get_out_port(self, dpid, in_port):
+    def __get_out_port(self, bandwidth, dpid, in_port):
         '''
         This function returns the out_port for every switch. In case no valid
         out_port can be found, a negative value will be returned. The function
@@ -103,7 +144,7 @@ class PacketSwitching:
         out_port is chosen according to the bandwidth that is currently set.
         '''
 
-        if self.bandwidth == "high":  # Finding out_port for "high" bandwidth
+        if bandwidth == "high":  # Finding out_port for "high" bandwidth
             if dpid == 1 and in_port == 1:
                 return 2
             elif dpid == 2 and in_port == 1:
@@ -116,7 +157,7 @@ class PacketSwitching:
                 return 1
             elif dpid == 1 and in_port == 2:
                 return 1
-        elif self.bandwidth == "med":  # Finding out_port for "med" bandwidth
+        elif bandwidth == "med":  # Finding out_port for "med" bandwidth
             if dpid == 1 and in_port == 1:
                 return 3
             elif dpid == 4 and in_port == 1:
@@ -129,7 +170,7 @@ class PacketSwitching:
                 return 1
             elif dpid == 1 and in_port == 3:
                 return 1
-        elif self.bandwidth == "low":  # Finding out_port for "low" bandwidth
+        elif bandwidth == "low":  # Finding out_port for "low" bandwidth
             if dpid == 1 and in_port == 1:
                 return 4
             elif dpid == 3 and in_port == 4:
@@ -142,19 +183,18 @@ class PacketSwitching:
             return -1
 
 
-def launch(bw):
+def launch(ftp_bw, ssh_bw, http_bw):
     '''
     Standard launch-function for POX. The launch
     function requires the bandwidth to be set!
     '''
     # Check whether bandwidth was set correctly
-    if bw is None and (bw != "low" or bw != "med" or bw != "high"):
-        log.error("Error: Bandwidth was not correctly set! " +
-                  "Use --bw={low|med|high}")
+    if ftp_bw != "low" and ftp_bw != "med" and ftp_bw != "high" and ssh_bw != "low" and ssh_bw != "med" and ssh_bw != "high" and http_bw != "low" and http_bw != "med" and http_bw != "high":
+        print "Error: Bandwidth was not correctly set! Use --ftp_bw={low|med|high} --ssh_bw={low|med|high} --http_bw={low|med|high}"
         return
 
     # Create instance
-    switching = PacketSwitching(bw)
+    switching = PacketSwitching(ftp_bw, ssh_bw, http_bw)
 
     # Event listener for adding / removing Links
     core.openflow.addListenerByName(
