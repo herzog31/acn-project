@@ -61,26 +61,38 @@ class PacketSwitching:
                 if packet.payload.srcip == self.hostA_ip and tcpp.dstport == self.ssh_port and not ssh_out_port is None:
                     print "SSH Packet from A -> B"
                     self.install_forwarding_rule(con, packet.payload.srcip, None, None, tcpp.dstport, ssh_out_port)
+                    self.send_packet_to_port(ssh_out_port, event)
+                    return
 
                 if packet.payload.srcip == self.hostB_ip and tcpp.srcport == self.ssh_port and not ssh_out_port is None:
                     print "SSH Packet from B -> A"
                     self.install_forwarding_rule(con, packet.payload.srcip, None, tcpp.srcport, None, ssh_out_port)
+                    self.send_packet_to_port(ssh_out_port, event)
+                    return
 
                 if packet.payload.srcip == self.hostA_ip and tcpp.dstport == self.ftp_port and not ftp_out_port is None:
                     print "FTP Packet from A -> B"
                     self.install_forwarding_rule(con, packet.payload.srcip, None, None, tcpp.dstport, ftp_out_port)
+                    self.send_packet_to_port(ftp_out_port, event)
+                    return
 
                 if packet.payload.srcip == self.hostB_ip and tcpp.srcport == self.ftp_port and not ftp_out_port is None:
                     print "FTP Packet from B -> A"
                     self.install_forwarding_rule(con, packet.payload.srcip, None, tcpp.srcport, None, ftp_out_port)
+                    self.send_packet_to_port(ftp_out_port, event)
+                    return
 
                 if packet.payload.srcip == self.hostA_ip and tcpp.dstport == self.http_port and not http_out_port is None:
                     print "HTTP Packet from A -> B"
                     self.install_forwarding_rule(con, packet.payload.srcip, None, None, tcpp.dstport, http_out_port)
+                    self.send_packet_to_port(http_out_port, event)
+                    return
 
                 if packet.payload.srcip == self.hostB_ip and tcpp.srcport == self.http_port and not http_out_port is None:
                     print "HTTP Packet from B -> A"
                     self.install_forwarding_rule(con, packet.payload.srcip, None, tcpp.srcport, None, http_out_port)
+                    self.send_packet_to_port(http_out_port, event)
+                    return
 
                 print "IP Source: %s, IP Dest: %s, TCP Source: %s, TCP Destination: %s" % (str(packet.payload.srcip), str(packet.payload.dstip), str(tcpp.srcport), str(tcpp.dstport))
 
@@ -89,11 +101,14 @@ class PacketSwitching:
             return
 
         # Sending packet to the outgoing port
+        self.send_packet_to_port(out_port, event)
+
+    def send_packet_to_port(self, out_port, event):
         log.debug("Sending packet to out_port")
         msg = of.ofp_packet_out()
         msg.data = event.ofp
         msg.actions.append(of.ofp_action_output(port=out_port))
-        con.send(msg)
+        event.connection.send(msg)
 
     def install_forwarding_rule(self, con, nw_src, nw_dst, tp_src, tp_dst, out_port):
         '''
