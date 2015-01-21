@@ -22,7 +22,7 @@ class PacketSwitching:
     '''
     Packet Switching class
 
-    Switches packets over one of the three paths.
+    Switches packets over one of the three paths based on their protocol.
     '''
 
     ftp_port = 10021
@@ -34,6 +34,7 @@ class PacketSwitching:
 
     def __init__(self, ftp_bw, ssh_bw, http_bw):
         '''
+        Initialize bandwidth for different protocols
         '''
         self.ftp_bw = ftp_bw
         self.ssh_bw = ssh_bw
@@ -47,73 +48,139 @@ class PacketSwitching:
         in_port = event.port
         packet = event.parsed
         con = event.connection
-        out_port = self.__get_out_port(self.other_bw, dpid, in_port)
 
         if packet.type == ethernet.IP_TYPE:
             tcpp = event.parsed.find('tcp')
             if not tcpp is None:
-                
+
                 ftp_out_port = self.__get_out_port(self.ftp_bw, dpid, in_port)
                 ssh_out_port = self.__get_out_port(self.ssh_bw, dpid, in_port)
-                http_out_port = self.__get_out_port(self.http_bw, dpid, in_port)
-                print "Out Ports: FTP %s, SSH %s, HTTP %s, Rest %s" % (str(ftp_out_port), str(ssh_out_port), str(http_out_port), str(out_port))
+                http_out_port = self.__get_out_port(
+                    self.http_bw,
+                    dpid,
+                    in_port)
 
-                if packet.payload.srcip == self.hostA_ip and tcpp.dstport == self.ssh_port and not ssh_out_port is None:
+                # Rule and packet forwarding for SSH packets send from A to B,
+                # that are on a valid path
+                if packet.payload.srcip == self.hostA_ip and tcpp.dstport == \
+                self.ssh_port and not ssh_out_port is None:
                     print "SSH Packet from A -> B"
-                    self.install_forwarding_rule(con, packet.payload.srcip, None, None, tcpp.dstport, ssh_out_port)
+                    self.install_forwarding_rule(
+                        con,
+                        packet.payload.srcip,
+                        None,
+                        None,
+                        tcpp.dstport,
+                        ssh_out_port)
                     self.send_packet_to_port(ssh_out_port, event)
                     return
 
-                if packet.payload.srcip == self.hostB_ip and tcpp.srcport == self.ssh_port and not ssh_out_port is None:
+                # Rule and packet forwarding for SSH packets send from B to A,
+                # that are on a valid path
+                if packet.payload.srcip == self.hostB_ip and tcpp.srcport == \
+                self.ssh_port and not ssh_out_port is None:
                     print "SSH Packet from B -> A"
-                    self.install_forwarding_rule(con, packet.payload.srcip, None, tcpp.srcport, None, ssh_out_port)
+                    self.install_forwarding_rule(
+                        con,
+                        packet.payload.srcip,
+                        None,
+                        tcpp.srcport,
+                        None,
+                        ssh_out_port)
                     self.send_packet_to_port(ssh_out_port, event)
                     return
 
-                if packet.payload.srcip == self.hostA_ip and tcpp.dstport == self.ftp_port and not ftp_out_port is None:
+                # Rule and packet forwarding for FTP packets send from A to B,
+                # that are on a valid path
+                if packet.payload.srcip == self.hostA_ip and tcpp.dstport == \
+                self.ftp_port and not ftp_out_port is None:
                     print "FTP Packet from A -> B"
-                    self.install_forwarding_rule(con, packet.payload.srcip, None, None, tcpp.dstport, ftp_out_port)
+                    self.install_forwarding_rule(
+                        con,
+                        packet.payload.srcip,
+                        None,
+                        None,
+                        tcpp.dstport,
+                        ftp_out_port)
                     self.send_packet_to_port(ftp_out_port, event)
                     return
 
-                if packet.payload.srcip == self.hostB_ip and tcpp.srcport == self.ftp_port and not ftp_out_port is None:
+                # Rule and packet forwarding for FTP packets send from B to A,
+                # that are on a valid path
+                if packet.payload.srcip == self.hostB_ip and tcpp.srcport == \
+                self.ftp_port and not ftp_out_port is None:
                     print "FTP Packet from B -> A"
-                    self.install_forwarding_rule(con, packet.payload.srcip, None, tcpp.srcport, None, ftp_out_port)
+                    self.install_forwarding_rule(
+                        con,
+                        packet.payload.srcip,
+                        None,
+                        tcpp.srcport,
+                        None,
+                        ftp_out_port)
                     self.send_packet_to_port(ftp_out_port, event)
                     return
 
-                if packet.payload.srcip == self.hostA_ip and tcpp.dstport == self.http_port and not http_out_port is None:
+                # Rule and packet forwarding for HTTP packets send from A to B,
+                # that are on a valid path
+                if packet.payload.srcip == self.hostA_ip and tcpp.dstport == \
+                self.http_port and not http_out_port is None:
                     print "HTTP Packet from A -> B"
-                    self.install_forwarding_rule(con, packet.payload.srcip, None, None, tcpp.dstport, http_out_port)
+                    self.install_forwarding_rule(
+                        con,
+                        packet.payload.srcip,
+                        None,
+                        None,
+                        tcpp.dstport,
+                        http_out_port)
                     self.send_packet_to_port(http_out_port, event)
                     return
 
-                if packet.payload.srcip == self.hostB_ip and tcpp.srcport == self.http_port and not http_out_port is None:
+                # Rule and packet forwarding for HTTP packets send from B to A,
+                # that are on a valid path
+                if packet.payload.srcip == self.hostB_ip and tcpp.srcport == \
+                self.http_port and not http_out_port is None:
                     print "HTTP Packet from B -> A"
-                    self.install_forwarding_rule(con, packet.payload.srcip, None, tcpp.srcport, None, http_out_port)
+                    self.install_forwarding_rule(
+                        con,
+                        packet.payload.srcip,
+                        None,
+                        tcpp.srcport,
+                        None,
+                        http_out_port)
                     self.send_packet_to_port(http_out_port, event)
                     return
 
-                print "IP Source: %s, IP Dest: %s, TCP Source: %s, TCP Destination: %s" % (str(packet.payload.srcip), str(packet.payload.dstip), str(tcpp.srcport), str(tcpp.dstport))
+        # Out port for all other packets (non FTP / SSH / HTTP)
+        out_port = self.__get_out_port(self.other_bw, dpid, in_port)
 
         if out_port < 0:
-            #log.error("Unable to detect out_port for switch %s with in_port %s!" % (dpidToStr(dpid), str(in_port)))
+            # Discard packet if off the path
             return
 
         # Sending packet to the outgoing port
         self.send_packet_to_port(out_port, event)
 
     def send_packet_to_port(self, out_port, event):
+        """
+        Send packet to given outgoing port.
+        """
         log.debug("Sending packet to out_port")
         msg = of.ofp_packet_out()
         msg.data = event.ofp
         msg.actions.append(of.ofp_action_output(port=out_port))
         event.connection.send(msg)
 
-    def install_forwarding_rule(self, con, nw_src, nw_dst, tp_src, tp_dst, out_port):
+    def install_forwarding_rule(
+            self,
+            con,
+            nw_src,
+            nw_dst,
+            tp_src,
+            tp_dst,
+            out_port):
         '''
-        This function installs a forwarding rule for
-        the switch according to the path that is currently set.
+        This function installs a forwarding rule for the switch to forward a 
+        matching packet to the given out port
         '''
         log.debug("Installing forwarding rule:")
 
@@ -201,11 +268,15 @@ class PacketSwitching:
 def launch(ftp_bw, ssh_bw, http_bw):
     '''
     Standard launch-function for POX. The launch
-    function requires the bandwidth to be set!
+    function requires the bandwidths to be set!
     '''
     # Check whether bandwidth was set correctly
-    if ftp_bw != "low" and ftp_bw != "med" and ftp_bw != "high" and ssh_bw != "low" and ssh_bw != "med" and ssh_bw != "high" and http_bw != "low" and http_bw != "med" and http_bw != "high":
-        print "Error: Bandwidth was not correctly set! Use --ftp_bw={low|med|high} --ssh_bw={low|med|high} --http_bw={low|med|high}"
+    if ftp_bw != "low" and ftp_bw != "med" and ftp_bw != "high" and ssh_bw !=\
+     "low" and ssh_bw != "med" and ssh_bw != "high" and http_bw != "low" \
+     and http_bw != "med" and http_bw != "high":
+        print "Error: Bandwidth was not correctly set! Use \
+        --ftp_bw={low|med|high} --ssh_bw={low|med|high} \
+        --http_bw={low|med|high}"
         return
 
     # Create instance
